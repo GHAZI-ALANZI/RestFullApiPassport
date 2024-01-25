@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\MobileController;
+use App\Http\Controllers\Auth\LoginRegisterController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,6 +15,26 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Public routes of authtication
+Route::controller(LoginRegisterController::class)->group(function() {
+    Route::post('/register', 'register');
+    Route::post('/login', 'login');
+});
+
+// Public routes of product
+Route::controller(MobileController::class)->group(function() {
+    Route::get('/mobiles', 'index');
+    Route::get('/mobiles/{id}', 'show');
+    Route::get('/mobiles/search/{name}', 'search');
+});
+
+// Protected routes of product and logout
+Route::middleware('auth:api')->group( function () {
+    Route::post('/logout', [LoginRegisterController::class, 'logout']);
+
+    Route::controller(MobileController::class)->group(function() {
+        Route::post('/mobiles', 'store');
+        Route::post('/mobiles/{id}', 'update');
+        Route::delete('/mobiles/{id}', 'destroy');
+    });
 });
